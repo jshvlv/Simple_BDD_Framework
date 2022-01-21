@@ -2,6 +2,7 @@ package ru.lanit.at.api;
 
 import io.qameta.allure.Allure;
 import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.http.ContentType;
 import io.restassured.http.Method;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -14,6 +15,7 @@ import ru.lanit.at.utils.FileUtil;
 import ru.lanit.at.utils.JsonUtil;
 import ru.lanit.at.utils.RegexUtil;
 
+import java.io.File;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -126,5 +128,13 @@ public class ApiRequest {
     private void addLoggingListener() {
         builder.addFilter(new RestAssuredCustomLogger());
     }
-}
 
+    /**
+     * Сеттит фалы к запросу
+     * @param files название(для запроса) и путь до файла
+     */
+    public void addMultiPart(Map<String, String> files){
+        builder.setContentType(ContentType.MULTIPART);
+        files.forEach((name, path) -> builder.addMultiPart(new File(path)));
+    }
+}

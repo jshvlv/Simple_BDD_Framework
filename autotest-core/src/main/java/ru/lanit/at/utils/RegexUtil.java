@@ -41,4 +41,20 @@ public class RegexUtil {
         return null;
     }
 
+    /**
+     * Поиск текста по регулярному выражению
+     * @param sentence текст для поиска
+     * @param regex регулярка паттерн
+     * @return возвращает найденный текст
+     */
+    public static String getMatchValue(String sentence, String regex){
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(sentence);
+        StringBuilder res= new StringBuilder();
+        while (matcher.find()) {
+            res.append(sentence, matcher.start(), matcher.end());
+        }
+        return res.toString();
+    }
+
 }

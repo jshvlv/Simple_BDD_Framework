@@ -1,12 +1,13 @@
 package ru.lanit.at.utils;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 public class FileUtil {
@@ -91,5 +92,24 @@ public class FileUtil {
      */
     public static String readBodyFromJsonDir(String fileName) {
         return readBodyFromFile(fileName, "src", "test", "resources", "json");
+    }
+
+    /**
+     * Возвращает значение по ключу в проперти файле. Файл положить в папку с ресурсами
+     * @param fileName - название файла
+     * @param propertyKey - название ключа
+     * @return содержимое ключа
+     */
+    public static String readValueFromProperties(String fileName, String propertyKey){
+        String path = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource("")).getPath() + fileName;
+
+        Properties properties = new Properties();
+        try {
+            properties.load(new FileInputStream(path));
+            return properties.getProperty(propertyKey);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        return "";
     }
 }

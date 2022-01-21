@@ -38,6 +38,11 @@ public class JsonUtil {
 
         String val;
         JsonNode node;
+        //очистка json если он пришел с куском html (для валидности)
+        if(RegexUtil.getMatch(body, "\\{.+\\}")){
+            body = RegexUtil.getMatchValue(body, "\\{.+\\}");
+        }
+
         try {
             node = JsonPath.using(jacksonConfig).parse(body).read(jsonPath, JsonNode.class);
         } catch (InvalidJsonException e) {

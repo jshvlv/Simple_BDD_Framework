@@ -9,16 +9,14 @@ import org.testng.Assert;
 import ru.lanit.at.api.ApiRequest;
 import ru.lanit.at.api.models.RequestModel;
 import ru.lanit.at.api.testcontext.ContextHolder;
-import ru.lanit.at.utils.CompareUtil;
-import ru.lanit.at.utils.DataGenerator;
-import ru.lanit.at.utils.Sleep;
-import ru.lanit.at.utils.VariableUtil;
+import ru.lanit.at.utils.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.net.URLEncoder;
+import java.util.*;
 
 import static ru.lanit.at.api.testcontext.ContextHolder.replaceVarsIfPresent;
 import static ru.lanit.at.utils.JsonUtil.getFieldFromJson;
+import static ru.lanit.at.utils.FileUtil.readValueFromProperties;
 
 public class ApiSteps {
 
@@ -37,10 +35,16 @@ public class ApiSteps {
         apiRequest.setHeaders(headers);
     }
 
+    //Можно добавить секретные параметры из проперти. Файл положить в папку ресурсов
     @И("добавить query параметры")
     public void addQuery(DataTable dataTable) {
         Map<String, String> query = new HashMap<>();
-        dataTable.asLists().forEach(it -> query.put(it.get(0), it.get(1)));
+        dataTable.asLists().forEach(it -> {
+            if(it.get(1).equals("fromProperties")){
+                String param = readValueFromProperties("secret.properties", it.get(0));
+                query.put(it.get(0), param);
+            } else query.put(it.get(0), it.get(1));
+        });
         apiRequest.setQuery(query);
     }
 
@@ -101,4 +105,48 @@ public class ApiSteps {
     public void waitSeconds(int timeout) {
         Sleep.pauseSec(timeout);
     }
+
+    //                                                                   -- new steps --
+
+    @И("заполнить пустые поля и добавить их в query параметры")
+    public void fillValues(DataTable table){
+        Map<String, String> query = new HashMap<>();
+        ContextHolder.asMap().forEach((k, v) -> {
+            if(v==""){
+                query.put(k, table.asMap(String.class, String.class).get(k).toString());
+                LOG.info("Заполняем пустое поле {} значением {}", k, table.asMap(String.class, String.class).get(k));
+            }
+        });
+        apiRequest.setQuery(query);
+    }
+
+    @И("добавить файлы")
+    public void addFiles(DataTable files){
+        apiRequest.addMultiPart(files.asMap(String.class, String.class));
+    }
+
+    @И("создать запрос с параметрами по ссылке из контекста {word}")
+    public void extractData(String url){
+        String uri = ContextHolder.getValue(url);
+        String[] params = uri.split("\\?")[1].split("&");
+        Map<String, String> query = new HashMap<>();
+        Arrays.stream(params).forEach(p -> {
+            query.put(p.split("=")[0], p.split("=")[1]);
+        });
+        apiRequest = new ApiRequest(new RequestModel("POST", "", "", uri));
+        apiRequest.setQuery(query);
+        ContextHolder.remove(url);
+    }
+
+    @И("вставить параметры из контекста")
+    public void setParamsFromContext(){
+        Map<String, String> query = new HashMap<>();
+        ContextHolder.asMap().forEach((k, v) -> {
+            //replace потому что в некоторых параметрах лишние слэши
+            query.put(k, v.toString().replaceAll("\\\\",""));
+            LOG.info("Вставлены параметры из контекста: {} = {}", k, v);
+        });
+        apiRequest.setQuery(query);
+    }
+
 }
