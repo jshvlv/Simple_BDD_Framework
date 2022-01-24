@@ -11,7 +11,6 @@ import ru.lanit.at.api.models.RequestModel;
 import ru.lanit.at.api.testcontext.ContextHolder;
 import ru.lanit.at.utils.*;
 
-import java.net.URLEncoder;
 import java.util.*;
 
 import static ru.lanit.at.api.testcontext.ContextHolder.replaceVarsIfPresent;
@@ -138,15 +137,5 @@ public class ApiSteps {
         ContextHolder.remove(url);
     }
 
-    @И("вставить параметры из контекста")
-    public void setParamsFromContext(){
-        Map<String, String> query = new HashMap<>();
-        ContextHolder.asMap().forEach((k, v) -> {
-            //replace потому что в некоторых параметрах лишние слэши
-            query.put(k, v.toString().replaceAll("\\\\",""));
-            LOG.info("Вставлены параметры из контекста: {} = {}", k, v);
-        });
-        apiRequest.setQuery(query);
-    }
 
 }

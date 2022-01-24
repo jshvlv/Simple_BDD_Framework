@@ -11,6 +11,7 @@ import org.apache.commons.io.IOUtils;
 import ru.lanit.at.api.listeners.RestAssuredCustomLogger;
 import ru.lanit.at.api.models.RequestModel;
 import ru.lanit.at.api.properties.RestConfigurations;
+import ru.lanit.at.api.testcontext.ContextHolder;
 import ru.lanit.at.utils.FileUtil;
 import ru.lanit.at.utils.JsonUtil;
 import ru.lanit.at.utils.RegexUtil;
@@ -79,7 +80,7 @@ public class ApiRequest {
      */
     public void setQuery(Map<String, String> query) {
         query.forEach((k, v) -> {
-            builder.addQueryParam(k, v);
+            builder.addQueryParam(k, replaceVarsIfPresent(v).replaceAll("\\\\",""));
         });
     }
 

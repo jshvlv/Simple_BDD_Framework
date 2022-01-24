@@ -12,14 +12,14 @@
     # получаем адрес сервера для загрузки
     * создать запрос
       | method | url                                              |
-      | GET    | https://api.vk.com/method/photos.getUploadServer |
+      | GET    | https://api.vk.com/method/photos.getOwnerPhotoUploadServer |
 
     * добавить query параметры
       | access_token | fromProperties |
       | user_ids     | fromProperties |
       | v            | 5.131          |
       | test_mode    | 1              |
-      | album_id     | 241585786      |
+      | owner_id     | fromProperties |
 
     * отправить запрос
     * статус код 200
@@ -28,12 +28,6 @@
 
     # загружаем фото
     * создать запрос с параметрами по ссылке из контекста upload_url
-
-    * добавить header
-      | Content-Type    | multipart/form-data |
-      | Accept          | application/json    |
-      | Accept-Encoding | gzip, deflate, br   |
-      | Connection      | keep-alive          |
 
     * добавить query параметры
       | access_token | fromProperties |
@@ -46,24 +40,24 @@
     * отправить запрос
     * статус код 200
     * извлечь данные
-      | server      | $.server      |
-      | photos_list | $.photos_list |
-      | hash        | $.hash        |
+      | server | $.server |
+      | photo  | $.photo       |
+      | mid   | $.mid   |
+      | hash    | $.hash    |
+      | message_code    | $.message_code    |
+      | profile_aid   | $.profile_aid    |
 
     # сохраняем фото на сервере
     * создать запрос
       | method | url                                   |
-      | POST   | https://api.vk.com/method/photos.save |
-
-    * вставить параметры из контекста
+      | POST   | https://api.vk.com/method/photos.saveOwnerPhoto |
 
     * добавить query параметры
       | access_token | fromProperties |
-      | album_id     | fromProperties |
       | v            | 5.131          |
-      | latitude     | 0              |
-      | longitude    | 0              |
-      | caption      | somephoto      |
+      | server       | ${server}      |
+      | photo        | [${photo}]     |
+      | hash         | ${hash}        |
 
     * отправить запрос
     * статус код 200
